@@ -1,4 +1,4 @@
-  import {IScheme} from "./types"
+  import type { IScheme } from "./types";
   export const investmentData:IScheme[] = [{
     "Scheme_Code": 119551,
     "ISIN_Div_Payout_ISIN_Growth": "INF209KA12Z1",

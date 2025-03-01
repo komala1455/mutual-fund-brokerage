@@ -1,40 +1,69 @@
-import { investmentData, type IScheme, indianFormat } from "@data/";
+import { type IScheme, API_ENDPOINT } from "@data/";
+import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
-export const MutualFunds = () => {
+export const ExploreFunds = () => {
 	const [selectedFund, setSelectedFund] = useState<IScheme | null>(null);
+	const [funds, setFunds] = useState<IScheme[] | null>(null);
+	const navigate = useNavigate();
+
+	axios
+		.get(
+			`${API_ENDPOINT}/funds/funds`,
+
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `${localStorage.getItem("tokenType")} ${localStorage.getItem("authToken")}`,
+				},
+			},
+		)
+		.then((res) => {
+			setFunds(res.data);
+		})
+		.catch((e) => console.log(e));
+	const handleBuy = (fund: IScheme) => {
+		axios
+			.post(
+				`${API_ENDPOINT}/portfolio/`,
+
+				fund,
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `${localStorage.getItem("tokenType")} ${localStorage.getItem("authToken")}`,
+					},
+				},
+			)
+			.then((res) => {
+				console.log(res.data);
+				navigate("/investments");
+			})
+			.catch((e) => {
+				alert("problem facing order");
+				console.log(e);
+			});
+	};
 	return (
 		<div className="flex flex-wrap">
 			<div className="w-2/3 py-2">
 				<table className="w-full text-left">
 					<thead className="border-b border-gray-600 bg-gray-100 py-2">
 						<tr>
-							<th className="w-2/3 items-start text-left py-4 capitalize pl-2 rounded-tl-md flex">
-								<div className="text-center px-2 w-1/2">
-									<div className="text-3xl">
-										{indianFormat(
-											investmentData
-												.reduce(
-													(accumulator, currentValue) =>
-														accumulator + currentValue.Net_Asset_Value,
-													0,
-												)
-												.toFixed(2),
-										)}
-									</div>
-									<div className="capitalize text-sm text-gray-400 font-light">
-										current value
-									</div>
-								</div>
-								<div className="text-center px-2 w-1/2" />
+							<th className="w-1/2 items-start text-left py-4 capitalize pl-2 rounded-tl-md">
+								fund name
 							</th>
-							<th className="w-1/3 items-start text-left py-4 capitalize rounded-tr-md">
+							<th className="w-1/4 items-start text-left py-4 capitalize rounded-tr-md">
 								scheme code
+							</th>
+							<th className="w-1/4 items-start text-left py-4 capitalize rounded-tr-md">
+								Net Asset Value
 							</th>
 						</tr>
 					</thead>
 					<tbody>
-						{investmentData.map((fund: IScheme) => {
+						{funds?.map((fund: IScheme) => {
 							return (
 								<tr
 									onClick={() => {
@@ -49,16 +78,17 @@ export const MutualFunds = () => {
 											{fund.Scheme_Name}{" "}
 											<span className="text-xs bg-gray-200 px-1 py-0.5 rounded-md text-nowrap">
 												{fund.Scheme_Type}
+											</span>{" "}
+											<span className="text-xs bg-gray-200 px-1 py-0.5 rounded-md text-nowrap">
+												{fund.Scheme_Category}
 											</span>
-										</div>
-										<div className="text-sm text-gray-400 py-0.5">
-											{fund.Scheme_Category}
 										</div>
 										<div className="text-sm  text-gray-400 py-0.5">
 											{fund.Mutual_Fund_Family}
 										</div>
 									</td>
 									<td>{fund.Scheme_Code}</td>
+									<td>{fund.Net_Asset_Value}</td>
 								</tr>
 							);
 						})}
@@ -96,6 +126,24 @@ export const MutualFunds = () => {
 								<div className="w-1/4 font-semibold">Scheme Code </div>
 								<div className="w-3/4 px-2">: {selectedFund.Scheme_Code}</div>
 							</div>
+							<button
+								type="button"
+								className="bg-gray-200 rounded-md px-2 py-1"
+								onClick={() => {
+									navigate(`${selectedFund.Mutual_Fund_Family}`);
+								}}
+							>
+								view details about fund
+							</button>
+							<button
+								type="button"
+								className="bg-blue-600 rounded-md px-2 py-1 text-white"
+								onClick={() => {
+									handleBuy(selectedFund);
+								}}
+							>
+								buy
+							</button>
 						</div>
 					) : (
 						"please select fund"

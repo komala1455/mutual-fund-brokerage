@@ -1,23 +1,65 @@
-import { data, type IScheme } from "@data/";
+import { type IScheme, API_ENDPOINT } from "@data/";
+import axios from "axios";
 import { useState } from "react";
-export const ExploreFunds = () => {
+import { useNavigate, useParams } from "react-router";
+
+export const ExploreFund = () => {
 	const [selectedFund, setSelectedFund] = useState<IScheme | null>(null);
+	const [funds, setFunds] = useState<IScheme[] | null>(null);
+	const params = useParams();
+	const navigate = useNavigate();
+	axios
+		.get(`${API_ENDPOINT}/funds/mutual-funds/?fund_name=${params.id}`, {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `${localStorage.getItem("tokenType")} ${localStorage.getItem("authToken")}`,
+			},
+		})
+		.then((res) => {
+			setFunds(res.data);
+		})
+		.catch((e) => console.log(e));
+	const handleBuy = (fund: IScheme) => {
+		axios
+			.post(
+				`${API_ENDPOINT}/portfolio/`,
+
+				fund,
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `${localStorage.getItem("tokenType")} ${localStorage.getItem("authToken")}`,
+					},
+				},
+			)
+			.then((res) => {
+				console.log(res.data);
+				navigate("/investments");
+			})
+			.catch((e) => {
+				alert("problem facing order");
+				console.log(e);
+			});
+	};
 	return (
 		<div className="flex flex-wrap">
 			<div className="w-2/3 py-2">
 				<table className="w-full text-left">
 					<thead className="border-b border-gray-600 bg-gray-100 py-2">
 						<tr>
-							<th className="w-2/3 items-start text-left py-4 capitalize pl-2 rounded-tl-md">
+							<th className="w-1/2 items-start text-left py-4 capitalize pl-2 rounded-tl-md">
 								fund name
 							</th>
-							<th className="w-2/3 items-start text-left py-4 capitalize rounded-tr-md">
+							<th className="w-1/4 items-start text-left py-4 capitalize rounded-tr-md">
 								scheme code
+							</th>
+							<th className="w-1/4 items-start text-left py-4 capitalize rounded-tr-md">
+								Net Asset Value
 							</th>
 						</tr>
 					</thead>
 					<tbody>
-						{data.map((fund: IScheme) => {
+						{funds?.map((fund: IScheme) => {
 							return (
 								<tr
 									onClick={() => {
@@ -32,16 +74,17 @@ export const ExploreFunds = () => {
 											{fund.Scheme_Name}{" "}
 											<span className="text-xs bg-gray-200 px-1 py-0.5 rounded-md text-nowrap">
 												{fund.Scheme_Type}
+											</span>{" "}
+											<span className="text-xs bg-gray-200 px-1 py-0.5 rounded-md text-nowrap">
+												{fund.Scheme_Category}
 											</span>
-										</div>
-										<div className="text-sm text-gray-400 py-0.5">
-											{fund.Scheme_Category}
 										</div>
 										<div className="text-sm  text-gray-400 py-0.5">
 											{fund.Mutual_Fund_Family}
 										</div>
 									</td>
 									<td>{fund.Scheme_Code}</td>
+									<td>{fund.Net_Asset_Value}</td>
 								</tr>
 							);
 						})}
@@ -79,6 +122,15 @@ export const ExploreFunds = () => {
 								<div className="w-1/4 font-semibold">Scheme Code </div>
 								<div className="w-3/4 px-2">: {selectedFund.Scheme_Code}</div>
 							</div>
+							<button
+								type="button"
+								className="bg-blue-600 rounded-md px-2 py-1 text-white"
+								onClick={() => {
+									handleBuy(selectedFund);
+								}}
+							>
+								buy
+							</button>
 						</div>
 					) : (
 						"please select fund"

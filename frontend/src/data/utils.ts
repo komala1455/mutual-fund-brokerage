@@ -1,3 +1,4 @@
+export const API_ENDPOINT = "http://localhost:8001";
 export const indianFormat = (number: string) => {
 	const numStr = number.toString();
 	let formattedNum = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -13,3 +14,16 @@ export const indianFormat = (number: string) => {
 	}
 	return formattedNum;
 };
+
+// Example usage:
+// const items = [
+// 	{ id: 1, category: "A", value: "x" },
+// 	{ id: 2, category: "B", value: "y" },
+// 	{ id: 3, category: "A", value: "z" },
+// ];
+
+// const groupedByCategory = groupByMutual_Fund_Family(
+// 	data,
+// 	(item) => item.Mutual_Fund_Family,
+// );
+// console.log(groupedByCategory);

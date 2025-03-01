@@ -1,7 +1,13 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Layout } from "@layout/";
-import {  MutualFunds, ExploreFunds, Login, Register } from "@pages/index";
+import {
+	MutualFunds,
+	ExploreFunds,
+	Login,
+	Register,
+	ExploreFund,
+} from "@pages/index";
 
 function App() {
 	return (
@@ -12,6 +18,7 @@ function App() {
 				<Route element={<Layout />}>
 					<Route path="/" index element={<ExploreFunds />} />
 					<Route path="/explore" element={<ExploreFunds />} />
+					<Route path="/explore/:id" element={<ExploreFund />} />
 					<Route path="/investments" element={<MutualFunds />} />
 				</Route>
 			</Routes>

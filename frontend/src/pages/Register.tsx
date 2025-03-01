@@ -1,3 +1,4 @@
+import { API_ENDPOINT } from "@data/";
 import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -10,24 +11,21 @@ export const Register = () => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (email && password) {
-			axios.post("http://localhost:8000/users/register", {
-				email,
-				password,
-			},)
+			axios
+				.post(`${API_ENDPOINT}/users/register`, {
+					email,
+					password,
+				})
 				.then((res) => {
-					alert(res.data.message)
-
-					// return <Navigate to="/" />;
+					alert(res.data.message);
 					navigate("/login");
-
-
 				})
-				.catch(e => {
-					if (e.status == 400) {
-						alert(e.response.data.detail)
-					};
-					console.log(e, "ttt")
-				})
+				.catch((e) => {
+					if (e.status === 400) {
+						alert(e.response.data.detail);
+					}
+					console.log(e, "ttt");
+				});
 		} else {
 			alert("enter username and password");
 		}
